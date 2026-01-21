@@ -1,127 +1,140 @@
-1. Project Overview
+# Graduation Project  
+## Energy Performance Calculation and Survey Platform for Office Buildings
 
-This graduation project focuses on the design and development of a web-based Energy Performance (EP) Calculation and Survey Platform for government and commercial office buildings in Vietnam.
-The system aims to support the collection, management, and analysis of building operational data in order to evaluate energy performance and assist decision-making related to energy efficiency and sustainable building management.
+---
 
-The platform allows users to create building profiles, conduct structured energy surveys, calculate energy performance indicators, and export data for reporting and assessment purposes. The project combines both theoretical foundations and practical implementation in a full-stack web application.
+## 1. Project Overview
 
-⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻
+This graduation project focuses on the design and development of a **web-based Energy Performance (EP) Calculation and Survey Platform** for government and commercial office buildings in Vietnam.
 
+The system supports the collection, management, and analysis of building operational data in order to evaluate energy performance and assist decision-making related to energy efficiency and sustainable building management.
 
-2. Objectives of the Project
+The platform allows users to create building profiles, conduct structured energy surveys, calculate energy performance indicators, and export data for reporting and assessment purposes.
 
-The main objectives of this project are as follows:
-	• To analyse the requirements of an energy performance assessment system for office buildings.
-	• To design a structured data model for buildings, operational zones, energy consumption, and renewable energy sources.
-	• To develop a user-friendly web application that supports energy surveys and EP calculations.
-	• To implement automated energy performance calculation logic based on collected data.
-	• To provide data visualisation and export features (e.g. Excel reports) to support analysis and reporting.
-	• To evaluate the system through testing and practical use cases.
+---
 
-⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻
+## 2. Project Objectives
 
+The main objectives of this project are:
 
-3. Scope of the Project
+- Analyse the requirements of an energy performance assessment system for office buildings.
+- Design a structured data model for buildings, operational zones, and energy consumption.
+- Develop a user-friendly web application for energy surveys.
+- Implement automated energy performance calculation logic.
+- Provide data export and reporting features.
+- Evaluate the system through testing and practical use cases.
+
+---
+
+## 3. Project Scope
 
 The scope of this project includes:
-	• Office buildings (governmental and commercial) as the primary target objects.
-	• Energy-related data such as electricity consumption, operational schedules, HVAC systems, lighting systems, and renewable energy.
-	• Energy performance calculation at building level based on survey inputs.
-	• Web-based deployment for accessibility and scalability.
 
-The project does not focus on hardware-level energy measurement or real-time IoT data collection.
+- Government and commercial office buildings.
+- Electricity consumption data and operational schedules.
+- HVAC, lighting, and renewable energy information.
+- Energy performance calculation at building level.
+- Web-based deployment.
 
-⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻
+The project does **not** include hardware-level measurement or real-time IoT data collection.
 
-4. System Architecture
+---
 
-The system is designed following a client–server architecture and consists of three main components:
-	• Frontend: A web-based user interface for data entry, survey management, and result visualisation.
-	• Backend: A RESTful API server responsible for business logic, data processing, and energy performance calculations.
-	• Database: A NoSQL database for storing building information, survey data, and calculation results.
+## 4. System Architecture
 
-⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻
+The system follows a **client–server architecture** consisting of:
 
+- **Frontend:**  
+  Web interface for survey input, data management, and result visualisation.
 
-5. Technologies Used
+- **Backend:**  
+  RESTful API handling business logic and energy performance calculations.
 
-Frontend
-	• React
-	• Vite
-	• TypeScript
-	• Material UI (MUI)
-	• React Hook Form
-	• TanStack Query (React Query)
+- **Database:**  
+  NoSQL database for storing building, survey, and calculation data.
 
-Backend
-	• Node.js
-	• Express.js
-	• JavaScript
-	• RESTful API design
+---
 
-Database
-	• MongoDB
+## 5. Technologies Used
 
-Other Tools
-	• Docker & Docker Compose
-	• Excel export libraries
-	• Git for version control
+### Frontend
+- React
+- Vite
+- TypeScript
+- Material UI (MUI)
+- React Hook Form
+- TanStack Query
 
-⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻
+### Backend
+- Node.js
+- Express.js
+- JavaScript
 
+### Database
+- MongoDB
 
-6. Main Features
-	• Building creation and management
-	• Multi-step energy survey workflow
-	• Operational zone configuration
-	• Monthly electricity consumption input
-	• Renewable energy data management
-	• Energy Performance (EP) calculation
-	• Survey review and history tracking
-	• Data export to Excel
-	• API documentation with Swagger
+### Other Tools
+- Docker & Docker Compose
+- Swagger (API Documentation)
+- Excel export libraries
+- Git
 
-⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻
+---
 
-7. Methodology
+## 6. Main Features
 
-The project is developed using a software engineering approach, including:
-	1. Requirement analysis
-	2. System and database design
-	3. User interface design
-	4. Backend API development
-	5. Frontend integration
-	6. Testing and debugging
-	7. Documentation and evaluation
+- Building creation and management
+- Multi-step energy survey workflow
+- Operational zone configuration
+- Monthly electricity consumption input
+- Renewable energy data management
+- Energy Performance (EP) calculation
+- Survey history and review
+- Data export to Excel
+- API documentation with Swagger
 
-Agile and iterative development principles are applied throughout the implementation phase.
+---
 
-⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻
+## 7. Development Methodology
 
+The project is developed using a software engineering approach:
 
-8. Expected Outcomes
-	• A functional and stable web-based energy performance assessment platform.
-	• A structured and extensible data model suitable for future development.
-	• Practical experience in full-stack web development and system integration.
-	• A complete graduation project report including analysis, design, implementation, and evaluation.
+1. Requirement analysis  
+2. System and database design  
+3. UI/UX design  
+4. Backend API development  
+5. Frontend integration  
+6. Testing and debugging  
+7. Documentation and evaluation  
 
-⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻
+An iterative development process is applied throughout the project.
 
+---
 
-9. Future Improvements
+## 8. Expected Outcomes
 
-Possible future enhancements include:
-	• Integration with real-time energy monitoring systems (IoT).
-	• Advanced data visualisation and dashboards.
-	• Role-based access control and authentication.
-	• Support for additional building types.
-	• Machine-learning-based energy consumption prediction.
+- A functional web-based energy performance assessment platform.
+- A scalable and extensible system architecture.
+- Practical experience in full-stack web development.
+- A complete graduation project report.
 
-⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻⸻
+---
 
-10. Author
+## 9. Future Improvements
 
-Student: [Quoc Tran Anh]
-Major: Information Technology / Software Engineering
-Institution: [Hanoi University of Civil Engineering]
-Academic Year: [2021 - 2026]
+Potential future enhancements include:
+
+- Integration with real-time energy monitoring systems.
+- Advanced dashboards and visual analytics.
+- User authentication and role-based access control.
+- Support for additional building types.
+- Energy consumption prediction using machine learning.
+
+---
+
+## 10. Author
+
+- **Student:** [Quoc Tran Anh]  
+- **Major:** Information Technology / Software Engineering  
+- **Institution:** [Hanoi University of Civil Engineering]  
+- **Academic Year:** [2021 - 2026]
