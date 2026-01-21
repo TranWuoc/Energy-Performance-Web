@@ -1,0 +1,14 @@
+# OS
+.DS_Store
+
+# Dependencies (double safety)
+**/node_modules
+
+# Env files (double safety)
+**/.env
+**/.env.*
+
+# Logs
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
