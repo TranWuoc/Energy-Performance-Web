@@ -152,8 +152,8 @@ export interface BuildingGeneralInfo {
 
 // ===== Main Building =====
 export interface Building extends BuildingFormValues {
-    _id: string;
-    buildingId: string;
+    _id?: string;
+    buildingId?: string;
     createdAt?: string;
     updatedAt?: string;
     __v?: number;

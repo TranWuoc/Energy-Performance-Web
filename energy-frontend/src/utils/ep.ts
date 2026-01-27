@@ -1,4 +1,4 @@
-export function formatNumber(v: any) {
+export function formatNumber(v: unknown) {
     if (v === null || v === undefined) return '-';
     if (typeof v !== 'number') return String(v);
     return v.toLocaleString('vi-VN');

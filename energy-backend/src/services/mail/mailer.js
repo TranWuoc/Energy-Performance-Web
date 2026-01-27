@@ -45,12 +45,6 @@ function getMailer() {
       if (!cachedTransporter) {
             cachedTransporter = buildTransporter(env.mailProvider);
       }
-      console.log("[MAILTRAP_CFG]", {
-            host: env.mailtrap?.host,
-            port: env.mailtrap?.port,
-            user: env.mailtrap?.user ? "set" : "missing",
-            pass: env.mailtrap?.pass ? "set" : "missing"
-      });
       return cachedTransporter;
 }
 

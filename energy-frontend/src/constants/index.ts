@@ -62,7 +62,7 @@ export const ROLE_LABEL: Record<string, string> = {
 
 export const EP_INPUT_META: Record<
     string,
-    { label: string; unit?: string; formula?: string; formatter?: (v: any) => string }
+    { label: string; unit?: string; formula?: string; formatter?: (v: unknown) => string }
 > = {
     GFA: {
         label: 'Tổng diện tích sàn',
@@ -103,7 +103,7 @@ export const EP_NORMALISED_META: Record<
         label: string;
         unit?: string;
         formula?: string;
-        format?: (v: any) => string;
+        format?: (v: number) => string;
     }
 > = {
     EFA: {

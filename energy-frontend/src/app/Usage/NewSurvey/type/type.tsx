@@ -120,4 +120,7 @@ export type BuildingFormValues = {
     }>;
 
     producedElectricity: ProducedElectricityYear[];
+    __meta?: {
+        readOnly: boolean;
+    };
 };

@@ -35,7 +35,7 @@ export default function ConsumedElectricityBarChart({ value, height = 320 }: Pro
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="month" />
                         <YAxis />
-                        <Tooltip formatter={(v: any) => [`${v} kWh`, 'Tiêu thụ']} />
+                        <Tooltip formatter={(v) => [`${v} kWh`, 'Tiêu thụ']} />
                         <Bar dataKey="kWh" fill="#1f2f1f" barSize={20} />
                     </BarChart>
                 </ResponsiveContainer>

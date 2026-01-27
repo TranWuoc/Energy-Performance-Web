@@ -1,9 +1,25 @@
 const mongoose = require("mongoose");
 const buildingService = require("../services/building.service");
+const { getIO } = require("../socket");
 
 async function createBuilding(req, res, next) {
       try {
             const building = await buildingService.createBuilding(req.body);
+
+            const created = building.building;
+            const payload = {
+                  buildingId: created?.buildingId,
+                  creatorName: created?.user?.fullName || "",
+                  officeName: created?.generalInfo?.name || "",
+                  createdAt: created?.createdAt
+            };
+
+            try {
+                  const io = getIO();
+                  io.to("admins").emit("admin:new-survey", payload);
+            } catch (e) {
+                  console.warn("Socket emit failed:", e?.message || e);
+            }
             return res.status(201).json({
                   buildingId: building.building.buildingId,
                   data: building

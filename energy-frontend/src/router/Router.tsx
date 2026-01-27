@@ -4,22 +4,20 @@ import BuildingsPageAdmin from '../app/Admin/Buildings/index.tsx';
 import DashboardPage from '../app/Admin/Dashboard/index.tsx';
 import EPPage from '../app/Admin/EnergyPerformance/index.tsx';
 import EPDetailPage from '../app/Admin/EPDetail/index.tsx';
-import Buildings from '../app/Buildings/index.tsx';
+import NotFoundAdminPage from '../app/Admin/NotFoundPageAdmin.tsx';
 import LandingPage from '../app/LandingPage/index.tsx';
+import NotFoundPage from '../app/LandingPage/NotFoundPage.tsx';
 import LoginPage from '../app/Login/index.tsx';
 import CreateBuildingWizard from '../app/Usage/NewSurvey/CreateBuildingWizard.tsx';
 import '../index.css';
 import AdminLayout from '../layouts/AdminLayout.tsx';
 import MainLayout from '../layouts/MainLayout.tsx';
 import { ProtectRouter } from './ProtectRouter.tsx';
-import RouterErrorPage from './RouterErrorPage.tsx';
 
 const router = createBrowserRouter([
-    // { path: 'survey', element: <div style={{ padding: 24 }}>SURVEY OK</div> },
     {
         path: '/',
         element: <MainLayout />,
-        errorElement: <RouterErrorPage />,
         children: [
             {
                 index: true,
@@ -37,11 +35,11 @@ const router = createBrowserRouter([
                 path: 'survey/:buildingId/edit',
                 element: <CreateBuildingWizard mode="edit" />,
             },
+            {
+                path: '*',
+                element: <NotFoundPage />,
+            },
         ],
-    },
-    {
-        path: '/buildings',
-        element: <Buildings />,
     },
     {
         path: '/login',
@@ -74,6 +72,10 @@ const router = createBrowserRouter([
             {
                 path: '/admin/energy-performance/:buildingId',
                 element: <EPDetailPage />,
+            },
+            {
+                path: '*',
+                element: <NotFoundAdminPage />,
             },
         ],
     },

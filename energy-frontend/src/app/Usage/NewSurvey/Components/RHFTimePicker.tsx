@@ -2,20 +2,21 @@ import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import dayjs from 'dayjs';
 import { Controller, useFormContext } from 'react-hook-form';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function toDayjs(value: any) {
     if (!value) return null;
     if (typeof value === 'string') return dayjs(value, 'HH:mm');
     if (value?.isValid?.()) return value;
     return null;
 }
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function toString(value: any) {
     if (!value) return null;
     // dayjs -> "HH:mm"
     if (value?.format) return value.format('HH:mm');
     return null;
 }
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function RHFTimePicker({ name, label, disabled }: any) {
     const { control } = useFormContext();
 
@@ -35,7 +36,7 @@ export default function RHFTimePicker({ name, label, disabled }: any) {
                             helperText: fieldState.error?.message,
                             size: 'small',
                             fullWidth: true,
-                        } as any,
+                        },
                     }}
                 />
             )}

@@ -44,8 +44,11 @@ export const useLogin = () => {
             }, 3000);
         },
 
-        onError: (error: any) => {
-            toast.error(error.response?.data?.message);
+        onError: (error: unknown) => {
+            const message =
+                (error as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+                (error instanceof Error ? error.message : 'Đăng nhập thất bại');
+            toast.error(message);
         },
     });
 };

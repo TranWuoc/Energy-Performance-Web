@@ -198,17 +198,9 @@ export default function Footer() {
                             flexDirection: { xs: 'column', md: 'row' },
                             gap: 2,
                             alignItems: { xs: 'flex-start', md: 'center' },
-                            justifyContent: 'space-between',
+                            justifyContent: 'flex-end',
                         }}
                     >
-                        <Typography sx={{ color: 'text.secondary' }}>
-                            ©Copyright{' '}
-                            <Link href="#" underline="none" sx={{ fontWeight: 800 }}>
-                                UnifiedUI.com
-                            </Link>{' '}
-                            all rights reserved. 2024
-                        </Typography>
-
                         <Stack direction="row" spacing={3}>
                             <Link
                                 href="#"

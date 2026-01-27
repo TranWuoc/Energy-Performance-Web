@@ -59,7 +59,7 @@ function downloadBlob(blob: Blob, filename: string) {
 }
 
 export const exportBuildingsExcel = async (buildingIds?: string[]) => {
-    const params: any = {};
+    const params: Record<string, string> = {};
     if (buildingIds?.length) params.buildingIds = buildingIds.join(',');
 
     const res = await http.get('/buildings/export', {

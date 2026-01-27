@@ -28,14 +28,14 @@ import { useEPList } from '../EnergyPerformance/hooks/useEPList';
 import type { EPRecord } from '../EnergyPerformance/Types/ep.type';
 import MiniDonut from './Components/MiniDonut';
 import StatCard from './Components/StatCard';
-import { extractEPArray, hasAnyRenewable, pickEPValue, safeNumber, sumAnnualConsumptionForYear } from './helper';
+import { hasAnyRenewable, pickEPValue, safeNumber, sumAnnualConsumptionForYear } from './helper';
 
 export default function DashboardPage() {
     const { data: buildingsRes, isLoading: loadingBuildings, isError: buildingError } = useBuildings();
     const { data: epRes, isLoading: loadingEP, isError: epError } = useEPList();
 
     const buildings: Building[] = buildingsRes?.data || [];
-    const epList: EPRecord[] = extractEPArray(epRes);
+    const epList = epRes?.data;
 
     const loading = loadingBuildings || loadingEP;
 
@@ -48,7 +48,7 @@ export default function DashboardPage() {
         const set = new Set<number>();
 
         buildings.forEach((b) => (b.consumedElectricity || []).forEach((y) => set.add(Number(y.year))));
-        epList.forEach((r) => set.add(Number(r.year)));
+        epList?.forEach((r) => set.add(Number(r.year)));
 
         return Array.from(set).sort((a, b) => b - a);
     }, [buildings, epList]);
@@ -75,7 +75,7 @@ export default function DashboardPage() {
     const latestEPByBuilding = useMemo(() => {
         const map = new Map<string, EPRecord>();
 
-        epList.forEach((row) => {
+        epList?.forEach((row) => {
             const cur = map.get(row.buildingId);
             if (!cur || Number(row.year) > Number(cur.year)) map.set(row.buildingId, row);
         });
@@ -127,7 +127,7 @@ export default function DashboardPage() {
 
     const tableRows = useMemo(() => {
         const rows = filteredBuildings.map((b) => {
-            const ep = latestEPByBuilding.get(b.buildingId);
+            const ep = latestEPByBuilding.get(b.buildingId as string);
             return {
                 buildingId: b.buildingId,
                 name: b.generalInfo.name,
@@ -180,12 +180,7 @@ export default function DashboardPage() {
                         sx={{ minWidth: { xs: '100%', sm: 320 } }}
                     />
 
-                    <Select
-                        size="small"
-                        value={type}
-                        onChange={(e) => setType(e.target.value as any)}
-                        sx={{ minWidth: 220 }}
-                    >
+                    <Select size="small" value={type} onChange={(e) => setType(e.target.value)} sx={{ minWidth: 220 }}>
                         <MenuItem value="all">Tất cả loại tòa nhà</MenuItem>
                         <MenuItem value="1">Văn phòng công sở nhà nước</MenuItem>
                         <MenuItem value="2">Văn phòng thương mại</MenuItem>

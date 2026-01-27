@@ -32,7 +32,7 @@ function formatDateTime(iso: string) {
     return d.toLocaleString('vi-VN');
 }
 
-function KeyValueTable({ rows }: { rows: Array<{ k: string; v: any }> }) {
+function KeyValueTable({ rows }: { rows: Array<{ k: string; v: unknown }> }) {
     return (
         <TableContainer component={Paper} variant="outlined">
             <Table size="small">
@@ -133,10 +133,11 @@ export default function BuildingDetailPage() {
                     { k: 'Bãi xe ngoài trời (m²)', v: gi.outdoorParkingArea },
                     { k: 'Bãi xe trong nhà (m²)', v: gi.indoorParkingArea },
                     { k: 'Tổng diện tích cho thuê (m²)', v: gi.totalRentableArea },
+                    { k: 'Diện tích còn trống (m²)', v: gi.vacantArea },
                     { k: 'Diện tích không cho thuê (m²)', v: gi.nonRentableArea },
                     { k: 'Diện tích khu vực người thuê không có người thuê (m²)', v: gi.vacantArea },
                     { k: 'Loại kiểm soát hệ thống toà nhà', v: gi.controlSystemType },
-                    { k: 'Other systems', v: gi.otherSystems },
+                    { k: 'Các loại hệ thống khác', v: gi.otherSystems },
                     { k: 'Thông số cài đặt nhiệt độ (°C)', v: gi.setpointTemperature },
                     { k: 'Thông số cài đặt độ ẩm (%)', v: gi.setpointHumidity },
                     { k: 'Thông số cài đặt chiếu sáng (lx)', v: gi.setpointLightingLevel },
@@ -157,7 +158,7 @@ export default function BuildingDetailPage() {
                     gap: 2,
                 }}
             >
-                {zones.map((z: any, idx: number) => {
+                {zones.map((z, idx) => {
                     const label = getZoneLabel(buildingType, z.zoneCode);
                     const level = z.utilisationLevel;
 

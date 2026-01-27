@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { BuildingFormValues } from '../type/type';
 
 const toStr = (v: unknown) => (v === undefined || v === null ? '' : String(v).trim());
@@ -52,6 +53,7 @@ const normalizeConsumedElectricityEntry = (e: any) => {
     const dataSource = e?.dataSource;
 
     const map = new Map<number, any>();
+
     (e?.monthlyData || []).forEach((m: any) => {
         const month = toNum(m?.month);
         if (month >= 1 && month <= 12) map.set(month, m);
@@ -142,6 +144,23 @@ const normalizeGeneralInfo = (g: any) => ({
     vacantArea: toNum(g?.vacantArea),
 });
 
+const isValidZone = (zone: any) => {
+    const zoneCode = toStr(zone?.zoneCode);
+    if (!zoneCode) return false;
+
+    const hasTime = ['weekday', 'saturday', 'sunday'].some((k) => {
+        const t = zone?.[k];
+        const from = toTimeOrNull(t?.from);
+        const to = toTimeOrNull(t?.to);
+        return from !== null || to !== null;
+    });
+
+    const utilisation = toStr(zone?.utilisationLevel);
+    const hasUtilisation = utilisation !== '';
+
+    return hasTime || hasUtilisation;
+};
+
 export function formatBuildingPayload(values: BuildingFormValues) {
     const operation = values?.operation || {};
 
@@ -154,8 +173,8 @@ export function formatBuildingPayload(values: BuildingFormValues) {
         generalInfo: normalizeGeneralInfo(values?.generalInfo || {}),
 
         operation: {
-            governmentZones: (operation.governmentZones || []).map(normalizeZone),
-            commercialZones: (operation.commercialZones || []).map(normalizeZone),
+            governmentZones: (operation.governmentZones?.filter(isValidZone) || []).map(normalizeZone),
+            commercialZones: (operation.commercialZones?.filter(isValidZone) || []).map(normalizeZone),
         },
 
         consumedElectricity: (values?.consumedElectricity || []).map(normalizeConsumedElectricityEntry),

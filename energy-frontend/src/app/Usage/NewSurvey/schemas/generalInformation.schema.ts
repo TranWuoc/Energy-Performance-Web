@@ -93,7 +93,7 @@ export const generalInformationSchema = yup
         setpointHumidity: yup.number().optional(),
         setpointLightingLevel: yup.number().optional(),
 
-        controlSystemType: yup.string().optional(),
+        controlSystemType: yup.string().required('Vui lòng chọn loại hệ thống điều khiển'),
         climateZone: yup.string().optional(),
 
         outdoorParkingArea: yup.number().optional().min(0),

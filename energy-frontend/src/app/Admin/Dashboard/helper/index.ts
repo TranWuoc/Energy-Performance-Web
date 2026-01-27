@@ -1,6 +1,6 @@
 import type { Building } from '../../../../api/buildings/building.type';
 
-export function safeNumber(n: any, fallback = 0) {
+export function safeNumber(n: unknown, fallback = 0): number {
     const x = Number(n);
     return Number.isFinite(x) ? x : fallback;
 }
@@ -22,13 +22,7 @@ export function sumAnnualConsumptionForYear(building: Building, year: number) {
     return (row.monthlyData || []).reduce((sum, m) => sum + safeNumber(m.energyConsumption), 0);
 }
 
-export function extractEPArray(epApiData: any) {
-    if (Array.isArray(epApiData)) return epApiData;
-    if (epApiData?.data && Array.isArray(epApiData.data)) return epApiData.data;
-    return [];
-}
-
-export function pickEPValue(row: any) {
+export function pickEPValue(row: { EP?: number; ep?: number } | undefined | null) {
     if (typeof row?.EP === 'number') return row.EP;
     if (typeof row?.ep === 'number') return row.ep;
     return null;

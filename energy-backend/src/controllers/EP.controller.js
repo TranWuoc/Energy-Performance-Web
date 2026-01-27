@@ -30,6 +30,7 @@ async function getEnergyPerformanceList(req, res, next) {
 async function getEnergyPerformanceByBuildingId(req, res, next) {
       try {
             const { buildingId } = req.params;
+            const { year } = req.query;
 
             if (!buildingId) {
                   return res.status(400).json({ message: "buildingId is required" });
@@ -37,11 +38,15 @@ async function getEnergyPerformanceByBuildingId(req, res, next) {
 
             const col = mongoose.connection.collection("energy_performances");
 
-            const results = await col.find({ buildingId }).sort({ year: -1 }).toArray();
+            const filter = { buildingId };
+            if (year) filter.year = Number(year);
+
+            const results = await col.find(filter).sort({ year: -1 }).toArray();
 
             if (results.length === 0) {
                   return res.status(404).json({
-                        message: "No energy performance data found for the specified buildingId"
+                        message: "No energy performance data found",
+                        filter
                   });
             }
 

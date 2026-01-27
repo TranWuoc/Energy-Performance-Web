@@ -22,7 +22,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import * as yup from 'yup';
 import { toastAction, toastError, toastSuccess } from '../../../utils/toast';
 import { useBuildingDetail, useCreateBuilding, useUpdateBuilding } from '../hooks/useBuilding';
-import { generalInformationSchema } from './schemas/generalInformation.schema';
 import { userInformationSchema } from './schemas/userInformation.schema';
 import GeneralInformationStep from './Sections/GeneralInformationStep';
 import MonthlyElectricStep from './Sections/MonthlyElectricStep';
@@ -30,6 +29,8 @@ import OperationBuildingStep from './Sections/OperationBuildingStep';
 import UserInformationStep from './Sections/UserInformationStep';
 import type { BuildingFormValues } from './type/type';
 import { formatBuildingPayload } from './utils/formatBuildingPayload';
+import EPStep from './Sections/EPStep';
+import { generalInformationSchema } from './schemas/generalInformation.schema';
 
 const STEPS = [
     { key: 'user', label: 'Thông tin người dùng', desc: 'Nhập thông tin người tạo khảo sát' },
@@ -52,13 +53,20 @@ export default function CreateBuildingWizard({ mode = 'create', buildingId: buil
     const params = useParams();
     const [isFormReady, setFormReady] = useState(false);
 
-    const buildingId = buildingIdProp || (params as any)?.buildingId || (params as any)?.id;
+    const buildingId = buildingIdProp || params?.buildingId || params?.id;
 
     const [modeLocal, setModeLocal] = useState<WizardMode>(mode);
 
     const isView = modeLocal === 'view';
     const isEdit = modeLocal === 'edit';
     const isCreate = modeLocal === 'create';
+
+    const steps = useMemo(() => {
+        if (isView) {
+            return [...STEPS, { key: 'ep', label: 'Chỉ số EP', desc: 'Thông tin chỉ số EP của toà nhà' }];
+        }
+        return STEPS;
+    }, [isView]);
 
     const defaultValues = useMemo<BuildingFormValues>(
         () => ({
@@ -137,7 +145,7 @@ export default function CreateBuildingWizard({ mode = 'create', buildingId: buil
     const updateBuilding = useUpdateBuilding();
 
     const detailQuery = useBuildingDetail(String(buildingId || ''), (isView || isEdit) && Boolean(buildingId));
-    const detailData: any = detailQuery.data;
+    const detailData = detailQuery.data;
 
     useEffect(() => {
         if ((isView || isEdit) && detailData) {
@@ -154,27 +162,28 @@ export default function CreateBuildingWizard({ mode = 'create', buildingId: buil
         if (!(isView || isEdit)) return;
         if (!detailData) return;
 
-        const building = detailData?.building ?? detailData;
-
         reset(
             {
                 ...defaultValues,
-                ...building,
-                generalInfo: { ...defaultValues.generalInfo, ...building.generalInfo },
-                operation: { ...defaultValues.operation, ...building.operation },
+                ...detailData,
+                generalInfo: { ...defaultValues.generalInfo, ...detailData.generalInfo },
+                operation: { ...defaultValues.operation, ...detailData.operation },
                 __meta: { readOnly: isView },
             },
             { keepDefaultValues: true },
         );
     }, [buildingId, isView, isEdit, detailData, reset, defaultValues]);
 
-    const onSubmit = (values: BuildingFormValues) => {
+    const onSubmit = async (values: BuildingFormValues) => {
         const payload = formatBuildingPayload(values);
+        console.log('🚀 ~ onSubmit ~ payload:', payload);
 
         if (isCreate) {
             createBuilding.mutate(payload, {
                 onSuccess: () => {
                     toastSuccess('Tạo toà nhà thành công. Vui lòng kiểm tra hòm thư để xem chi tiết');
+                    methods.reset(defaultValues);
+                    setActiveStep(0);
                 },
                 onError: (error) => {
                     console.error('Create building failed:', error);
@@ -191,7 +200,7 @@ export default function CreateBuildingWizard({ mode = 'create', buildingId: buil
             }
 
             updateBuilding.mutate(
-                { buildingId: String(buildingId), data: payload },
+                { buildingId: buildingId, data: payload },
                 {
                     onSuccess: () => {
                         toastAction('Cập nhật toà nhà thành công', {
@@ -219,18 +228,21 @@ export default function CreateBuildingWizard({ mode = 'create', buildingId: buil
                 return <OperationBuildingStep />;
             case 3:
                 return <MonthlyElectricStep />;
+            case 4:
+                return isView ? <EPStep buildingId={buildingId} /> : null;
             default:
                 return null;
         }
     };
 
-    function getFirstErrorPath(errObj: any, prefix = ''): string | null {
-        if (!errObj) return null;
-        if (errObj?.message && prefix) return prefix;
+    function getFirstErrorPath(errObj: unknown, prefix = ''): string | null {
+        if (!errObj || typeof errObj !== 'object') return null;
 
-        for (const key of Object.keys(errObj)) {
+        if ('message' in (errObj as Record<string, unknown>) && prefix) return prefix;
+
+        for (const key of Object.keys(errObj as Record<string, unknown>)) {
             const nextPrefix = prefix ? `${prefix}.${key}` : key;
-            const found = getFirstErrorPath(errObj[key], nextPrefix);
+            const found = getFirstErrorPath((errObj as Record<string, unknown>)[key], nextPrefix);
             if (found) return found;
         }
         return null;
@@ -255,12 +267,28 @@ export default function CreateBuildingWizard({ mode = 'create', buildingId: buil
 
     const handleNext = async () => {
         if (isView) {
-            if (activeStep === STEPS.length - 1) {
+            if (activeStep === steps.length - 1) {
                 navigate(-1);
                 return;
             }
-            setActiveStep((s) => Math.min(s + 1, STEPS.length - 1));
+            setActiveStep((s) => Math.min(s + 1, steps.length - 1));
             setTimeout(scrollToTopAll, 50);
+            return;
+        }
+
+        if (activeStep === steps.length - 1) {
+            const ok = await trigger(undefined, { shouldFocus: true }); // undefined = validate toàn bộ
+            if (!ok) {
+                await methods.handleSubmit(() => {})();
+                // Tìm lỗi đầu tiên toàn form
+                const firstErrorPath = getFirstErrorPath(methods.formState.errors);
+                if (firstErrorPath) {
+                    scrollToField(firstErrorPath);
+                    methods.setFocus(firstErrorPath as Parameters<typeof methods.setFocus>[0]);
+                }
+                return;
+            }
+            handleSubmit(onSubmit)();
             return;
         }
 
@@ -272,7 +300,7 @@ export default function CreateBuildingWizard({ mode = 'create', buildingId: buil
         ];
         const currentStepKey = stepFieldPrefixes[activeStep];
 
-        const ok = await trigger(undefined, { shouldFocus: true });
+        const ok = await trigger(currentStepKey, { shouldFocus: true });
         if (!ok) {
             await methods.handleSubmit(() => {})();
 
@@ -283,17 +311,17 @@ export default function CreateBuildingWizard({ mode = 'create', buildingId: buil
 
             if (firstErrorPath) {
                 scrollToField(firstErrorPath);
-                methods.setFocus(firstErrorPath as any);
+                methods.setFocus(firstErrorPath as Parameters<typeof methods.setFocus>[0]);
             }
             return;
         }
 
-        if (activeStep === STEPS.length - 1) {
+        if (activeStep === steps.length - 1) {
             handleSubmit(onSubmit)();
             return;
         }
 
-        setActiveStep((s) => Math.min(s + 1, STEPS.length - 1));
+        setActiveStep((s) => Math.min(s + 1, steps.length - 1));
         setTimeout(scrollToTopAll, 50);
     };
 
@@ -304,22 +332,22 @@ export default function CreateBuildingWizard({ mode = 'create', buildingId: buil
 
         if (isView) {
             setModeLocal('edit');
+            if (activeStep === 4) setActiveStep(0);
             return;
         }
 
-        const building = detailData?.building ?? detailData;
-        reset({ ...defaultValues, ...building }, { keepDefaultValues: true });
+        reset({ ...defaultValues, ...detailData }, { keepDefaultValues: true });
         setModeLocal('view');
     };
 
     const primaryBtnText = (() => {
-        if (isView) return activeStep === STEPS.length - 1 ? 'Xong' : 'Tiếp tục';
-        if (isEdit) return activeStep === STEPS.length - 1 ? 'Cập nhật' : 'Tiếp tục';
-        return activeStep === STEPS.length - 1 ? 'Gửi đi' : 'Tiếp tục';
+        if (isView) return activeStep === steps.length - 1 ? 'Xong' : 'Tiếp tục';
+        if (isEdit) return activeStep === steps.length - 1 ? 'Cập nhật' : 'Tiếp tục';
+        return activeStep === steps.length - 1 ? 'Gửi đi' : 'Tiếp tục';
     })();
 
     const primaryBtnIcon = (() => {
-        if (activeStep !== STEPS.length - 1) return <ArrowForwardIosIcon />;
+        if (activeStep !== steps.length - 1) return <ArrowForwardIosIcon />;
         if (isEdit) return <SaveIcon />;
         if (isCreate) return <SendIcon />;
         return <ArrowForwardIosIcon />;
@@ -377,7 +405,7 @@ export default function CreateBuildingWizard({ mode = 'create', buildingId: buil
 
                             <Divider />
                             <List sx={{ p: 1 }}>
-                                {STEPS.map((s, idx) => {
+                                {steps.map((s, idx) => {
                                     const selected = idx === activeStep;
                                     return (
                                         <ListItemButton
@@ -415,10 +443,10 @@ export default function CreateBuildingWizard({ mode = 'create', buildingId: buil
                         >
                             <Stack spacing={1} sx={{ mb: 2 }}>
                                 <Typography variant="h6" fontWeight={800}>
-                                    {STEPS[activeStep].label}
+                                    {steps[activeStep].label}
                                 </Typography>
                                 <Typography variant="body2" color="text.secondary">
-                                    {STEPS[activeStep].desc}
+                                    {steps[activeStep].desc}
                                 </Typography>
                             </Stack>
 
@@ -433,23 +461,29 @@ export default function CreateBuildingWizard({ mode = 'create', buildingId: buil
                             <Divider sx={{ mt: 3, mb: 2 }} />
 
                             <Stack direction="row" justifyContent="space-between">
-                                <Button
-                                    variant="outlined"
-                                    onClick={handleBack}
-                                    disabled={activeStep === 0}
-                                    startIcon={<ArrowForwardIosIcon sx={{ transform: 'rotate(180deg)' }} />}
-                                >
-                                    Quay lại
-                                </Button>
+                                {activeStep !== 4 && (
+                                    <>
+                                        <Button
+                                            variant="outlined"
+                                            onClick={handleBack}
+                                            disabled={activeStep === 0}
+                                            startIcon={<ArrowForwardIosIcon sx={{ transform: 'rotate(180deg)' }} />}
+                                        >
+                                            Quay lại
+                                        </Button>
 
-                                <Button
-                                    variant="contained"
-                                    onClick={handleNext}
-                                    endIcon={primaryBtnIcon}
-                                    disabled={isLoadingDetail || createBuilding.isPending || updateBuilding.isPending}
-                                >
-                                    {primaryBtnText}
-                                </Button>
+                                        <Button
+                                            variant="contained"
+                                            onClick={handleNext}
+                                            endIcon={primaryBtnIcon}
+                                            disabled={
+                                                isLoadingDetail || createBuilding.isPending || updateBuilding.isPending
+                                            }
+                                        >
+                                            {primaryBtnText}
+                                        </Button>
+                                    </>
+                                )}
                             </Stack>
                         </Box>
                     </Box>

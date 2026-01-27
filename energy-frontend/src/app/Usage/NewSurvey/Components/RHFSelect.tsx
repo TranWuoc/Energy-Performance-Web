@@ -16,7 +16,7 @@ export default function RHFSelect({ name, disabled, label, options, ...other }: 
 
     return (
         <Controller
-            name={name as any}
+            name={name}
             control={control}
             render={({ field, fieldState }) => (
                 <FormControl fullWidth error={!!fieldState.error}>

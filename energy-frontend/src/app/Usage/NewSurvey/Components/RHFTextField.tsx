@@ -15,7 +15,7 @@ export default function RHFTextField({ name, disabled, type, numberEmptyAsZero =
 
     return (
         <Controller
-            name={name as any}
+            name={name}
             control={control}
             render={({ field, fieldState }) => (
                 <MuiTextField

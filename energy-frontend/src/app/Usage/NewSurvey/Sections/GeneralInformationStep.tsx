@@ -9,6 +9,7 @@ import RHFCheckbox from '../Components/RHFCheckbox';
 import RHFSelect from '../Components/RHFSelect';
 import RHFTextField from '../Components/RHFTextField';
 import ZoneCard from '../Components/ZoneCard';
+import type { BaseOperationZone } from '../type/type';
 
 const CONTROL_SYSTEM_OPTIONS = [
     { label: 'Hệ thống điều khiển tập trung', value: 'Centralized' },
@@ -34,15 +35,26 @@ export default function GeneralInformationStep() {
         return null;
     }, [buildingType]);
 
-    const currentZones = useWatch({
-        name: zoneBasePath as any,
-    }) as any[] | undefined;
+    const watchedZones = useWatch({ name: zoneBasePath ?? '' });
+    const currentZones = zoneBasePath ? (watchedZones as unknown[] | undefined) : undefined;
+    const outdoorParkingArea = useWatch({ name: 'generalInfo.outdoorParkingArea' }) ?? 0;
+    const dataCenterArea = useWatch({ name: 'generalInfo.dataCenterArea' }) ?? 0;
+    useEffect(() => {
+        if (outdoorParkingArea <= 0) {
+            setValue('generalInfo.parkingAnnualElectricity', [], { shouldDirty: true });
+        }
+    }, [outdoorParkingArea, setValue]);
 
+    useEffect(() => {
+        if (dataCenterArea <= 0) {
+            setValue('generalInfo.dataCenterAnnualElectricity', [], { shouldDirty: true });
+        }
+    }, [dataCenterArea, setValue]);
     useEffect(() => {
         if (!zoneBasePath || zonesConfig.length === 0) return;
 
         const normalised = zonesConfig.map((cfgZone) => {
-            const existed = currentZones?.find((z) => z?.zoneCode === cfgZone.zoneCode);
+            const existed = currentZones?.find((z) => (z as BaseOperationZone)?.zoneCode === cfgZone.zoneCode);
 
             return (
                 existed ?? {
@@ -55,28 +67,14 @@ export default function GeneralInformationStep() {
             );
         });
 
-        setValue(zoneBasePath as any, normalised, {
+        setValue(zoneBasePath, normalised, {
             shouldDirty: false,
             shouldValidate: false,
         });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [zoneBasePath, zonesConfig.length]);
 
     if (!buildingType) return null;
-
-    const outdoorParkingArea = useWatch({ name: 'generalInfo.outdoorParkingArea' }) ?? 0;
-    const dataCenterArea = useWatch({ name: 'generalInfo.dataCenterArea' }) ?? 0;
-
-    useEffect(() => {
-        if (outdoorParkingArea <= 0) {
-            setValue('generalInfo.parkingAnnualElectricity', [], { shouldDirty: true });
-        }
-    }, [outdoorParkingArea, setValue]);
-
-    useEffect(() => {
-        if (dataCenterArea <= 0) {
-            setValue('generalInfo.dataCenterAnnualElectricity', [], { shouldDirty: true });
-        }
-    }, [dataCenterArea, setValue]);
 
     return (
         <Stack spacing={3}>

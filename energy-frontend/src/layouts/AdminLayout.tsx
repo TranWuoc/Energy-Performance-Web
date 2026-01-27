@@ -1,5 +1,6 @@
 import {
     Avatar,
+    Badge,
     Box,
     Button,
     Chip,
@@ -7,15 +8,18 @@ import {
     IconButton,
     InputBase,
     List,
+    ListItem,
     ListItemButton,
     ListItemIcon,
     ListItemText,
     Paper,
+    Popover,
     Stack,
     Typography,
 } from '@mui/material';
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { io, Socket } from 'socket.io-client';
 
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined';
@@ -29,6 +33,16 @@ import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import { ROLE_LABEL } from '../constants';
 import { getCurrentAdmin } from '../utils/auth';
+import { useQueryClient } from '@tanstack/react-query';
+import { toastSuccess } from '../utils/toast';
+
+type AdminNoti = {
+    id: string;
+    buildingId: string;
+    creatorName: string;
+    officeName: string;
+    createdAt?: string | number;
+};
 
 const SidebarItem = ({ icon, label, to }: { icon: React.ReactNode; label: string; to: string }) => {
     const navigate = useNavigate();
@@ -57,8 +71,82 @@ const SidebarItem = ({ icon, label, to }: { icon: React.ReactNode; label: string
 const AdminLayout = () => {
     const navigate = useNavigate();
     const admin = getCurrentAdmin();
+    const [notiCount, setNotiCount] = useState(0);
+    const socketRef = useRef<Socket | null>(null);
+    const [notifications, setNotifications] = useState<AdminNoti[]>([]);
+    const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+    const qc = useQueryClient();
+
+    useEffect(() => {
+        if (!admin) return;
+
+        if (socketRef.current) return;
+
+        const socket = io(import.meta.env.VITE_API_URL, {
+            transports: ['websocket'],
+            withCredentials: true,
+        });
+
+        socketRef.current = socket;
+
+        socket.on('connect', () => {
+            socket.emit('admin:join');
+        });
+
+        socket.on('admin:new-survey', (payload) => {
+            const creatorName = payload?.creatorName ?? '';
+            const officeName = payload?.officeName ?? '';
+            const buildingId = payload?.buildingId ?? '';
+
+            toastSuccess(`Có khảo sát mới: ${creatorName} – ${officeName}`);
+
+            setNotiCount((c) => c + 1);
+
+            setNotifications((prev) => {
+                const item: AdminNoti = {
+                    id: `${Date.now()}_${Math.random().toString(16).slice(2)}`,
+                    buildingId,
+                    creatorName,
+                    officeName,
+                    createdAt: payload?.createdAt,
+                };
+
+                const next = [item, ...prev];
+                return next.slice(0, 5);
+            });
+
+            // refresh danh sách toà nhà
+            qc.invalidateQueries({ queryKey: ['buildings'] });
+        });
+
+        // socket.on('disconnect', () => {
+        //     console.log('[Socket] admin disconnected');
+        // });
+
+        // socket.on('connect_error', (err) => {
+        //     console.error('[Socket] connect_error:', err.message);
+        // });
+
+        return () => {
+            socket.off('admin:new-survey');
+            socket.disconnect();
+            socketRef.current = null;
+        };
+    }, [admin, qc]);
+
+    const openNoti = Boolean(anchorEl);
+    const notiId = openNoti ? 'admin-noti-popover' : undefined;
+
+    const handleOpenNoti = (e: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(e.currentTarget);
+        setNotiCount(0);
+    };
+
+    const handleCloseNoti = () => setAnchorEl(null);
 
     const handleLogout = () => {
+        socketRef.current?.disconnect();
+        socketRef.current = null;
         localStorage.removeItem('currentAdmin');
         localStorage.removeItem('accessToken');
         navigate('/login');
@@ -201,8 +289,10 @@ const AdminLayout = () => {
                         spacing={1.25}
                         sx={{ display: { xs: 'none', md: 'flex' } }}
                     >
-                        <IconButton>
-                            <NotificationsNoneOutlinedIcon />
+                        <IconButton onClick={handleOpenNoti}>
+                            <Badge badgeContent={notiCount} color="error">
+                                <NotificationsNoneOutlinedIcon />
+                            </Badge>
                         </IconButton>
 
                         <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
@@ -229,6 +319,88 @@ const AdminLayout = () => {
                 {/* Page content */}
                 <Outlet />
             </Box>
+            <Popover
+                id={notiId}
+                open={openNoti}
+                anchorEl={anchorEl}
+                onClose={handleCloseNoti}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                PaperProps={{ sx: { width: 420, borderRadius: 2 } }}
+            >
+                <Box sx={{ p: 2, pb: 1 }}>
+                    <Typography fontWeight={700}>Thông báo</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                        {notifications.length > 0
+                            ? `Bạn có ${notifications.length} thông báo gần đây`
+                            : 'Chưa có thông báo'}
+                    </Typography>
+                </Box>
+
+                <Divider />
+
+                <Box sx={{ maxHeight: 360, overflowY: 'auto' }}>
+                    <List disablePadding>
+                        {notifications.length === 0 ? (
+                            <Box sx={{ p: 2 }}>
+                                <Typography variant="body2" color="text.secondary">
+                                    Chưa có khảo sát mới.
+                                </Typography>
+                            </Box>
+                        ) : (
+                            notifications.map((n) => (
+                                <Box key={n.id}>
+                                    <ListItem
+                                        sx={{
+                                            px: 2,
+                                            py: 1.25,
+                                            alignItems: 'flex-start',
+                                            cursor: 'pointer',
+                                            transition: 'background-color 0.2s ease',
+                                            '&:hover': {
+                                                backgroundColor: 'action.hover',
+                                            },
+                                        }}
+                                        onClick={() => {
+                                            handleCloseNoti();
+                                            navigate(`/admin/buildings/${n.buildingId}`);
+                                        }}
+                                    >
+                                        <ListItemText
+                                            primary={
+                                                <Typography variant="body2">
+                                                    Đã có khảo sát mới của{' '}
+                                                    <b>{n.officeName || '(Không rõ tên văn phòng)'}</b> được tạo bởi{' '}
+                                                    <b>{n.creatorName || '(Không rõ người tạo)'}</b>
+                                                </Typography>
+                                            }
+                                            secondary={
+                                                n.createdAt ? (
+                                                    <Typography variant="caption" color="text.secondary">
+                                                        {new Date(n.createdAt).toLocaleString()}
+                                                    </Typography>
+                                                ) : null
+                                            }
+                                        />
+                                    </ListItem>
+                                    <Divider />
+                                </Box>
+                            ))
+                        )}
+                    </List>
+                </Box>
+
+                {notifications.length > 0 && (
+                    <Box sx={{ p: 1.5, display: 'flex', justifyContent: 'space-between' }}>
+                        <Button size="small" onClick={() => setNotifications([])} color="inherit">
+                            Xoá tất cả
+                        </Button>
+                        <Button size="small" onClick={handleCloseNoti}>
+                            Đóng
+                        </Button>
+                    </Box>
+                )}
+            </Popover>
         </Box>
     );
 };

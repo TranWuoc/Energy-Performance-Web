@@ -37,7 +37,7 @@ export function SystemTimeRow({ label, disabled, baseName, placeholder = '--:--'
             <Typography fontWeight={600}>{label}</Typography>
 
             <Controller
-                name={fromPath as any}
+                name={fromPath}
                 control={control}
                 defaultValue={null}
                 render={({ field, fieldState }) => (
@@ -62,7 +62,7 @@ export function SystemTimeRow({ label, disabled, baseName, placeholder = '--:--'
             />
 
             <Controller
-                name={toPath as any}
+                name={toPath}
                 control={control}
                 defaultValue={null}
                 render={({ field, fieldState }) => (

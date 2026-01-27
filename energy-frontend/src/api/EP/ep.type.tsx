@@ -1,3 +1,5 @@
+import type { DataSource } from '../buildings/building.type';
+
 // Inputs dùng để tính toán EP
 export interface EPInputs {
     GFA: number; // Gross Floor Area - Tổng diện tích sàn
@@ -7,7 +9,7 @@ export interface EPInputs {
     VA: number; // Vacant Area - Diện tích trống
     EC: number; // Energy Consumption - Năng lượng tiêu thụ (kWh)
     RE: number; // Renewable Energy - Năng lượng tái tạo (kWh)
-    dataSource: 1 | 2; // 1 = Hoá đơn điện hàng tháng, 2 = Công tơ điện / Báo cáo kiểm toán
+    dataSource: DataSource; // 1 = Hoá đơn điện hàng tháng, 2 = Công tơ điện / Báo cáo kiểm toán
 }
 
 export interface EPNormalised {

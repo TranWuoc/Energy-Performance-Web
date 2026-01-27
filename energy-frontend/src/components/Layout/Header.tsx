@@ -1,12 +1,30 @@
 import { AppBar, Box, Button, Container, Toolbar } from '@mui/material';
-import * as React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 type NavKey = 'Trang chủ' | 'Khảo sát' | 'Bài viết' | 'Toà nhà';
 
+const navConfig: { label: NavKey; path: string | string[] }[] = [
+    { label: 'Trang chủ', path: '/' },
+    { label: 'Khảo sát', path: ['/survey', '/survey/:buildingId', '/survey/:buildingId/edit'] },
+    { label: 'Bài viết', path: '/posts' }, // Giả sử sau này có route này
+    { label: 'Toà nhà', path: '/buildings' },
+];
+
+function matchPath(path: string | string[], current: string) {
+    if (Array.isArray(path)) {
+        return path.some((p) => {
+            if (p === '/') return current === '/';
+            return current.startsWith(p.replace(/:.*$/, ''));
+        });
+    }
+    if (path === '/') return current === '/';
+    return current.startsWith(path.replace(/:.*$/, ''));
+}
+
 export default function Header() {
-    const [active, setActive] = React.useState<NavKey>('Trang chủ');
     const navigate = useNavigate();
+    const location = useLocation();
+
     return (
         <AppBar
             position="static"
@@ -36,7 +54,6 @@ export default function Header() {
                                 display: { xs: 'none', sm: 'block' },
                             }}
                             onError={(e) => {
-                                // fallback nếu chưa có svg
                                 (e.currentTarget as HTMLImageElement).style.display = 'none';
                             }}
                         />
@@ -51,28 +68,20 @@ export default function Header() {
                             gap: 2.5,
                         }}
                     >
-                        <NavItem
-                            label="Trang chủ"
-                            active={active === 'Trang chủ'}
-                            onClick={() => {
-                                setActive('Trang chủ');
-                                navigate('/');
-                            }}
-                        />
-                        <NavItem
-                            label="Khoả sát"
-                            active={active === 'Khảo sát'}
-                            onClick={() => {
-                                setActive('Khảo sát');
-                                navigate('/survey');
-                            }}
-                        />
-                        <NavItem
-                            label="Bài viết"
-                            active={active === 'Bài viết'}
-                            onClick={() => setActive('Bài viết')}
-                        />
-                        <NavItem label="Toà nhà" active={active === 'Toà nhà'} onClick={() => setActive('Toà nhà')} />
+                        {navConfig.map((item) => (
+                            <NavItem
+                                key={item.label}
+                                label={item.label}
+                                active={matchPath(item.path, location.pathname)}
+                                onClick={() => {
+                                    if (typeof item.path === 'string') {
+                                        navigate(item.path);
+                                    } else {
+                                        navigate(item.path[0]);
+                                    }
+                                }}
+                            />
+                        ))}
                     </Box>
 
                     {/* Right menu icon */}
@@ -115,10 +124,10 @@ function NavItem(props: { label: string; active?: boolean; onClick?: () => void 
             sx={{
                 textTransform: 'none',
                 fontWeight: 500,
-                color: active ? '#111' : 'rgba(0,0,0,0.55)',
+                color: active ? '#14b86e' : 'rgba(0,0,0,0.55)',
                 fontSize: 16,
                 px: 1.2,
-                '&:hover': { bgcolor: 'transparent', color: '#111' },
+                '&:hover': { bgcolor: 'transparent', color: '#14b86e' },
             }}
         >
             {label}

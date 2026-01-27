@@ -20,7 +20,7 @@ import { useBuildingDetail } from '../Buildings/hooks/useBuildings';
 import { useEPDetail } from '../EnergyPerformance/hooks/useEPList';
 import { buildEPInputsFromBuilding } from './helper/EPInputsBuilding';
 
-function renderValueWithUnit(value: any, unit?: string) {
+function renderValueWithUnit(value: unknown, unit?: string) {
     if (value === null || value === undefined) return '-';
     if (typeof value === 'number') {
         return `${formatNumber(value)}${unit ? ` ${unit}` : ''}`;
@@ -34,7 +34,9 @@ function KeyValueTable({
     data,
 }: {
     title: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     meta: Record<string, { label: string; unit?: string; formula?: string; formatter?: (v: any) => string }>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data: Record<string, any> | undefined;
 }) {
     return (
@@ -79,12 +81,19 @@ function KeyValueTable({
 export default function EPDetailPage() {
     const navigate = useNavigate();
     const { buildingId } = useParams();
+    const searchParams = new URLSearchParams(location.search);
+    const yearParam = searchParams.get('year');
+    const year = yearParam ? Number(yearParam) : undefined;
 
     const { data: EP, isLoading, isError } = useEPDetail(buildingId);
 
-    const epRecord = EP?.data?.[0];
-
-    const year = epRecord?.year;
+    const epRecord = useMemo(() => {
+        if (!EP?.data) return undefined;
+        if (year !== undefined && !Number.isNaN(year)) {
+            return EP.data.find((r) => r.year === year) ?? EP.data[0];
+        }
+        return EP.data[0];
+    }, [EP, year]);
 
     const { data: buildingDetail } = useBuildingDetail(buildingId);
     const inputs = useMemo(() => {

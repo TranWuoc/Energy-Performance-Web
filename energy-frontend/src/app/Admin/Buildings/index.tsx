@@ -135,21 +135,21 @@ export default function BuildingsPageAdmin() {
 
     const isAllOnPageSelected = useMemo(() => {
         if (pageIds.length === 0) return false;
-        return pageIds.every((id) => selectedIds.has(id));
+        return pageIds.every((id) => selectedIds.has(id as string));
     }, [pageIds, selectedIds]);
 
     const isSomeOnPageSelected = useMemo(() => {
         if (pageIds.length === 0) return false;
-        return pageIds.some((id) => selectedIds.has(id)) && !isAllOnPageSelected;
+        return pageIds.some((id) => selectedIds.has(id as string)) && !isAllOnPageSelected;
     }, [pageIds, selectedIds, isAllOnPageSelected]);
 
     const toggleSelectAllOnPage = () => {
         setSelectedIds((prev) => {
             const next = new Set(prev);
             if (isAllOnPageSelected) {
-                pageIds.forEach((id) => next.delete(id));
+                pageIds.forEach((id) => next.delete(id as string));
             } else {
-                pageIds.forEach((id) => next.add(id));
+                pageIds.forEach((id) => next.add(id as string));
             }
             return next;
         });
@@ -170,8 +170,8 @@ export default function BuildingsPageAdmin() {
         setPage(0);
     };
 
-    const handleOpenDelete = (buildingId: string, name?: string) => {
-        setDeleteTarget({ buildingId, name });
+    const handleOpenDelete = (buildingId: string | undefined, name?: string) => {
+        setDeleteTarget({ buildingId: buildingId ?? '', name });
     };
 
     const handleCancel = () => {
@@ -230,7 +230,7 @@ export default function BuildingsPageAdmin() {
                                 label="Kiểu toà nhà"
                                 value={buildingType}
                                 onChange={(e) => {
-                                    setBuildingType(e.target.value as any);
+                                    setBuildingType(e.target.value);
                                     setPage(0);
                                 }}
                             >
@@ -246,7 +246,7 @@ export default function BuildingsPageAdmin() {
                                 label="Climate Zone"
                                 value={climateZone}
                                 onChange={(e) => {
-                                    setClimateZone(e.target.value as any);
+                                    setClimateZone(e.target.value);
                                     setPage(0);
                                 }}
                             >
@@ -350,8 +350,8 @@ export default function BuildingsPageAdmin() {
                                             <TableRow key={b.buildingId} hover>
                                                 <TableCell padding="checkbox">
                                                     <Checkbox
-                                                        checked={selectedIds.has(b.buildingId)}
-                                                        onChange={() => toggleSelectOne(b.buildingId)}
+                                                        checked={selectedIds.has(b.buildingId ?? '')}
+                                                        onChange={() => toggleSelectOne(b.buildingId ?? '')}
                                                     />
                                                 </TableCell>
                                                 <TableCell>{gi?.name ?? '-'}</TableCell>

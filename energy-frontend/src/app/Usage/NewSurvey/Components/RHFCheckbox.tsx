@@ -14,7 +14,7 @@ export default function RHFCheckbox({ name, label, disabled, fontWeight, labelPl
 
     return (
         <Controller
-            name={name as any}
+            name={name}
             control={control}
             render={({ field }) => (
                 <FormControlLabel

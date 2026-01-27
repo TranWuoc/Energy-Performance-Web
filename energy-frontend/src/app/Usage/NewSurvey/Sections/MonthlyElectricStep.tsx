@@ -59,10 +59,10 @@ function buildRenewableDefault(year: number) {
     };
 }
 
-function build12Months() {
+function build12Months(): { month: number; energyConsumption: number }[] {
     return Array.from({ length: 12 }, (_, i) => ({
         month: i + 1,
-        energyConsumption: null as number | null,
+        energyConsumption: 0,
     }));
 }
 
@@ -90,27 +90,25 @@ export default function MonthlyElectricStep({ disabled }: { disabled?: boolean }
 
     const yearOptions = useMemo(() => getLast3CompletedYears(), []);
 
-    const consumedElectricity = watch('consumedElectricity') || [];
+    const consumedElectricity = watch('consumedElectricity');
 
     useEffect(() => {
-        consumedElectricity.forEach((_, idx) => {
+        consumedElectricity.forEach((_, idx: number) => {
             const md = getValues(`consumedElectricity.${idx}.monthlyData`);
             if (!md || md.length !== 12) {
-                setValue(`consumedElectricity.${idx}.monthlyData`, build12Months() as any, {
-                    shouldDirty: true,
-                });
+                setValue(`consumedElectricity.${idx}.monthlyData`, build12Months(), { shouldDirty: true });
             }
             const ds = getValues(`consumedElectricity.${idx}.dataSource`);
             if (ds === null || ds === undefined) {
-                setValue(`consumedElectricity.${idx}.dataSource`, 1 as any, { shouldDirty: true });
+                setValue(`consumedElectricity.${idx}.dataSource`, 1, { shouldDirty: true });
             }
             for (let i = 0; i < 12; i++) {
-                setValue(`consumedElectricity.${idx}.monthlyData.${i}.month`, (i + 1) as any, {
+                setValue(`consumedElectricity.${idx}.monthlyData.${i}.month`, i + 1, {
                     shouldDirty: false,
                 });
             }
         });
-    }, [consumedElectricity.length]);
+    }, [consumedElectricity.length, consumedElectricity, getValues, setValue]);
 
     const initConsumedRef = useRef(false);
 
@@ -121,37 +119,37 @@ export default function MonthlyElectricStep({ disabled }: { disabled?: boolean }
         const current = getValues('consumedElectricity') || [];
         if (current.length === 0) {
             append({
-                year: currentYear,
+                year: currentYear - 1,
                 dataSource: 1,
                 monthlyData: build12Months(),
-            } as any);
+            });
         }
     }, [append, currentYear, getValues]);
 
     useEffect(() => {
-        const arr = (getValues('producedElectricity') || []) as any[];
+        const arr = getValues('producedElectricity') || [];
         if (!arr.length) {
-            appendProduced(buildRenewableDefault(currentYear) as any);
+            appendProduced(buildRenewableDefault(currentYear - 1));
         }
-    }, []);
+    }, [appendProduced, currentYear, getValues]);
 
     const handleAddYear = useCallback(() => {
         const usedYears = (getValues('consumedElectricity') || [])
             .map((e) => Number(e?.year))
             .filter((y) => !Number.isNaN(y));
-        const nextYear = getNextAvailableYear(usedYears, currentYear);
+        const nextYear = getNextAvailableYear(usedYears, currentYear - 1);
         append({
             year: nextYear,
             dataSource: 1,
             monthlyData: build12Months(),
-        } as any);
+        });
     }, [append, currentYear, getValues]);
     const handleAddProducedYear = useCallback(() => {
-        const arr = (getValues('producedElectricity') || []) as any[];
+        const arr = getValues('producedElectricity') || [];
         const usedYears = arr.map((e) => Number(e?.year)).filter((y) => !Number.isNaN(y));
 
-        const nextYear = getNextAvailableYear(usedYears, currentYear);
-        appendProduced(buildRenewableDefault(nextYear) as any);
+        const nextYear = getNextAvailableYear(usedYears, currentYear - 1);
+        appendProduced(buildRenewableDefault(nextYear));
     }, [appendProduced, currentYear, getValues]);
 
     return (
@@ -216,7 +214,7 @@ export default function MonthlyElectricStep({ disabled }: { disabled?: boolean }
                                                 />
                                             </Box>
 
-                                            <Box sx={{ minWidth: 260 }}>
+                                            <Box sx={{ width: 260 }}>
                                                 <RHFSelect
                                                     name={`consumedElectricity.${idx}.dataSource`}
                                                     label="Nguồn dữ liệu"

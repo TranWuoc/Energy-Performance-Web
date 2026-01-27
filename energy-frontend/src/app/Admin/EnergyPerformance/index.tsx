@@ -133,7 +133,7 @@ export default function EPSPage() {
                             label="Năm"
                             value={year}
                             onChange={(e) => {
-                                setYear(e.target.value as any);
+                                setYear(e.target.value);
                                 setPage(0);
                             }}
                         >
@@ -152,7 +152,7 @@ export default function EPSPage() {
                             label="Kiểu toà nhà"
                             value={buildingType}
                             onChange={(e) => {
-                                setBuildingType(e.target.value as any);
+                                setBuildingType(e.target.value);
                                 setPage(0);
                             }}
                         >
@@ -200,7 +200,6 @@ export default function EPSPage() {
                         ) : (
                             pagedRows.map((r: EPRecord) => (
                                 <TableRow key={r._id}>
-                                    {' '}
                                     <TableCell>{r.buildingName ?? '-'}</TableCell>
                                     <TableCell>{BUILDING_TYPE_LABEL[r.buildingType] ?? r.buildingType}</TableCell>
                                     <TableCell>{r.year ?? '-'}</TableCell>
@@ -210,7 +209,9 @@ export default function EPSPage() {
                                         <Tooltip title="Xem chi tiết EP">
                                             <IconButton
                                                 size="small"
-                                                onClick={() => navigate(`/admin/energy-performance/${r.buildingId}`)}
+                                                onClick={() =>
+                                                    navigate(`/admin/energy-performance/${r.buildingId}?year=${r.year}`)
+                                                }
                                             >
                                                 <VisibilityIcon fontSize="small" />
                                             </IconButton>

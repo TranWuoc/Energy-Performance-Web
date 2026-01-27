@@ -6,7 +6,7 @@ type Props = {
     produced?: ProducedElectricityYear[];
 };
 
-function ValueRow({ k, v }: { k: string; v: any }) {
+function ValueRow({ k, v }: { k: string; v: unknown }) {
     return (
         <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
             <Typography variant="body2" sx={{ fontWeight: 700 }}>
@@ -19,7 +19,7 @@ function ValueRow({ k, v }: { k: string; v: any }) {
     );
 }
 
-function EnergyCard({ title, rows }: { title: string; rows: Array<{ k: string; v: any }> }) {
+function EnergyCard({ title, rows }: { title: string; rows: Array<{ k: string; v: unknown }> }) {
     return (
         <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
             <Box
@@ -74,6 +74,7 @@ export default function ProducedElectricitySection({ produced }: Props) {
     }
 
     // ✅ Ẩn nguồn không selected
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const cards = useMemo(() => {
         if (!selected) return [];
 

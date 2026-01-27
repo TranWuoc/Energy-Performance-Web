@@ -47,11 +47,11 @@ type Props = {
 };
 
 function OperationZoneCard({ title, zoneCode, index, name, onRemove, disableRemove }: Props) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { setValue, getValues, watch } = useFormContext<any>();
 
     const basePath = `${name}.${index}`;
 
-    // ✅ đảm bảo zoneCode luôn nằm trong form state
     useEffect(() => {
         const current = getValues(`${basePath}.zoneCode`);
         if (!current) {
@@ -126,6 +126,7 @@ function OperationZoneCard({ title, zoneCode, index, name, onRemove, disableRemo
 }
 
 export default function OperationBuildingStep() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { watch, control } = useFormContext<any>();
 
     const buildingType = watch('generalInfo.buildingType');
@@ -148,7 +149,7 @@ export default function OperationBuildingStep() {
                 gap: 2,
             }}
         >
-            {zones.map((z: any, index) => (
+            {zones.map((z, index) => (
                 <OperationZoneCard
                     key={z.zoneCode}
                     title={z.label}
