@@ -53,7 +53,7 @@ export function ParkingAnnualElectricityCard({ disabled }: { disabled?: boolean 
 
                 <Button
                     variant="contained"
-                    onClick={() => append({ year: new Date().getFullYear(), monthlyAverageEnergyConsumption: 0 })}
+                    onClick={() => append({ year: new Date().getFullYear() - 1, monthlyAverageEnergyConsumption: 0 })}
                     sx={{ width: 'fit-content' }}
                     startIcon={<AddCircleOutlineIcon />}
                     disabled={mergedDisabled}

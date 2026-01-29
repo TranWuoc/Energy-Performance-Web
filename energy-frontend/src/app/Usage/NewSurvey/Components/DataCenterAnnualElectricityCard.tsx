@@ -53,7 +53,7 @@ export function DataCenterAnnualElectricityCard({ disabled }: { disabled?: boole
 
                 <Button
                     variant="contained"
-                    onClick={() => append({ year: new Date().getFullYear(), energyConsumption: 0 })}
+                    onClick={() => append({ year: new Date().getFullYear() - 1, energyConsumption: 0 })}
                     sx={{ width: 'fit-content' }}
                     startIcon={<AddCircleOutlineIcon />}
                     disabled={mergedDisabled}
